@@ -6,6 +6,7 @@ import "gorm.io/gorm"
 // menggunakan huruf kapital awal bersifat public
 type Repository interface {
 	Save(user User) (User, error)
+	FindByEmail(email string) (User, error)
 }
 
 type respository struct {
@@ -24,4 +25,14 @@ func (r *respository) Save(user User) (User, error) {
 	}
 
 	return user, nil
+}
+
+func (r respository) FindByEmail(email string) (User, error) {
+	var user User
+	err := r.db.Where("email = ?", email).Find(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+
 }
