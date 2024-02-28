@@ -83,3 +83,44 @@ func (h *userHandler) Login(c *gin.Context) {
 	response := helper.APIResponse("Login successfully", http.StatusOK, "success", formatter)
 	c.JSON(http.StatusOK, response)
 }
+
+func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
+	//ada input email dari user
+	//input email di-mapping ke struct input
+	//struct input di-passing ke service
+	//service akan manggil repository (email sudah ada atau belum)
+	//repository -db
+	var input user.CheckEmailInput
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		//gin.H adalah mapping dimana gin merupakan string, value interface (bisa apa aja)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.APIResponse("Email Checking Failed", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	isEmailAvaliable, err := h.userService.IsEmailAvailable(input)
+
+	if err != nil {
+		errorMessage := gin.H{"errors": "Server error"}
+
+		response := helper.APIResponse("Email Checking Failed", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	data := gin.H{
+		"is_available": isEmailAvaliable,
+	}
+
+	metaMessage := "Email has been registered"
+
+	if isEmailAvaliable == true {
+		metaMessage = "Email is Available"
+	}
+	response := helper.APIResponse(metaMessage, http.StatusOK, "success", data)
+	c.JSON(http.StatusOK, response)
+}
