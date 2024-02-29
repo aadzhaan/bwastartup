@@ -7,18 +7,20 @@ import "gorm.io/gorm"
 type Repository interface {
 	Save(user User) (User, error)
 	FindByEmail(email string) (User, error)
+	FindById(id int) (User, error)
+	Update(user User) (User, error)
 }
 
-type respository struct {
+type repository struct {
 	db *gorm.DB
 }
 
-func NewRepository(db *gorm.DB) *respository {
-	return &respository{db}
+func NewRepository(db *gorm.DB) *repository {
+	return &repository{db}
 }
 
 // membuat function bernama Save untuk repository diatas
-func (r *respository) Save(user User) (User, error) {
+func (r *repository) Save(user User) (User, error) {
 	err := r.db.Create(&user).Error
 	if err != nil {
 		return user, err
@@ -27,7 +29,7 @@ func (r *respository) Save(user User) (User, error) {
 	return user, nil
 }
 
-func (r *respository) FindByEmail(email string) (User, error) {
+func (r *repository) FindByEmail(email string) (User, error) {
 	var user User
 	err := r.db.Where("email = ?", email).Find(&user).Error
 	if err != nil {
@@ -35,4 +37,22 @@ func (r *respository) FindByEmail(email string) (User, error) {
 	}
 	return user, nil
 
+}
+
+func (r *repository) FindById(id int) (User, error) {
+	var user User
+	err := r.db.Where("id = ?", id).Find(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+
+}
+
+func (r *repository) Update(user User) (User, error) {
+	err := r.db.Save(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }
