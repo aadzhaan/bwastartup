@@ -9,13 +9,13 @@ type UserFormatter struct {
 }
 
 // mengubah user yang di user.go menjadi userformatter
-func FormatUser(user User) UserFormatter {
+func FormatUser(user User, token string) UserFormatter {
 	formatter := UserFormatter{
 		ID:         user.Id,
 		Name:       user.Name,
 		Occupation: user.Occupation,
 		Email:      user.Email,
-		Token:      user.Token,
+		Token:      token,
 	}
 	return formatter
 }
