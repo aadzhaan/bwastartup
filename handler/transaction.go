@@ -2,7 +2,6 @@ package handler
 
 import (
 	"bwastartup/helper"
-	"bwastartup/payment"
 	"bwastartup/transaction"
 	"bwastartup/user"
 	"net/http"
@@ -17,12 +16,11 @@ import (
 //repo mencari data transaction suatu campaign
 
 type transactionHandler struct {
-	service        transaction.Service
-	paymentService payment.Service
+	service transaction.Service
 }
 
-func NewTransactionHandler(service transaction.Service, paymentService payment.Service) *transactionHandler {
-	return &transactionHandler{service, paymentService}
+func NewTransactionHandler(service transaction.Service) *transactionHandler {
+	return &transactionHandler{service}
 }
 
 func (h *transactionHandler) GetCampaignTransactions(c *gin.Context) {
@@ -82,7 +80,7 @@ func (h *transactionHandler) CreateTransaction(c *gin.Context) {
 		//gin.H adalah mapping dimana gin merupakan string, value interface (bisa apa aja)
 		errorMessage := gin.H{"errors": errors}
 
-		response := helper.APIResponse("Failed to Update Campaign", http.StatusUnprocessableEntity, "error", errorMessage)
+		response := helper.APIResponse("Failed to Create Campaign", http.StatusUnprocessableEntity, "error", errorMessage)
 		c.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
@@ -112,7 +110,7 @@ func (h *transactionHandler) GetNotification(c *gin.Context) {
 		return
 	}
 
-	err = h.paymentService.ProcessPayment(input)
+	err = h.service.ProcessPayment(input)
 	if err != nil {
 		response := helper.APIResponse("Failed to process Notification", http.StatusBadRequest, "error", nil)
 		c.JSON(http.StatusBadRequest, response)
